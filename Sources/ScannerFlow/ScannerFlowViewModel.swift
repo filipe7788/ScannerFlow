@@ -11,7 +11,7 @@ import Vision
 @available(iOS 15.0, *)
 protocol ScannerFlowViewModelProtocol {
     func setup(_ delegate: ScannerFlowViewModelDelegate)
-    var recognizeTextRequest: VNRecognizeTextRequest? { get }
+    func performRequest(from image: CGImage)
 }
 
 protocol ScannerFlowViewModelDelegate: AnyObject {
@@ -19,10 +19,11 @@ protocol ScannerFlowViewModelDelegate: AnyObject {
 }
 
 @available(iOS 15.0, *)
-final class ScannerFlowViewModel: ScannerFlowViewModelProtocol {
+final class ScannerFlowViewModel {
+
     private weak var delegate: ScannerFlowViewModelDelegate?
 
-    private(set) var recognizeTextRequest: VNRecognizeTextRequest?
+    private var recognizeTextRequest: VNRecognizeTextRequest?
 
     init() {
         setupRecognizeTextRequest()
@@ -34,16 +35,34 @@ final class ScannerFlowViewModel: ScannerFlowViewModelProtocol {
                   let observations = request.results as? [VNRecognizedTextObservation],
                   error == nil else { return }
 
-            let text = observations.compactMap {
+            let stringObservations = observations.compactMap {
                 $0.topCandidates(1).first?.string
             }
 
-            let firstFullName = text.filter { item in
-                let wordCount = item.components(separatedBy: " ").count
-                return wordCount >= 3 && wordCount <= 6
-            }
+            self.renderFirstFullName(stringObservations: stringObservations)
+        }
+    }
 
-            self.delegate?.render(.init(recognizedName: firstFullName.first ?? "name not found"))
+
+    private func renderFirstFullName(stringObservations: [String]) {
+        let firstFullName = stringObservations.filter { item in
+            let wordCount = item.components(separatedBy: " ").count
+            return wordCount >= 3 && wordCount <= 6
+        }
+
+        self.delegate?.render(.init(recognizedName: firstFullName.first ?? "name not found"))
+    }
+}
+
+@available(iOS 15.0, *)
+extension ScannerFlowViewModel: ScannerFlowViewModelProtocol {
+    func performRequest(from image: CGImage) {
+        let requestHandler = VNImageRequestHandler(cgImage: image, options: [:])
+        do {
+            guard let request = recognizeTextRequest else { return }
+            try requestHandler.perform([request])
+        } catch {
+            fatalError()
         }
     }
 

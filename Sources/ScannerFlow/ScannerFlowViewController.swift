@@ -16,14 +16,13 @@ final class ScannerFlowViewController: UIViewController {
 
     private let customView: ScannerFlowViewProtocol
     private let viewModel: ScannerFlowViewModelProtocol
-    private let documentCameraViewController = VNDocumentCameraViewController()
+    private var documentCameraViewController: VNDocumentCameraViewController?
 
     init(customView: ScannerFlowViewProtocol, viewModel: ScannerFlowViewModelProtocol) {
         self.customView = customView
         self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
 
-        documentCameraViewController.delegate = self
+        super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
@@ -32,6 +31,16 @@ final class ScannerFlowViewController: UIViewController {
 
     override func loadView() {
         view = customView
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.documentCameraViewController = VNDocumentCameraViewController()
+        documentCameraViewController?.delegate = self
+    }
+
+    func perfomRecognizeTextRequest(image: CGImage) {
+        viewModel.performRequest(from: image)
     }
 }
 
@@ -47,6 +56,7 @@ extension ScannerFlowViewController: ScannerFlowViewDelegate {
     func openCamera() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
             case .authorized: // The user has previously granted access to the camera.
+                guard let documentCameraViewController = self.documentCameraViewController else { return }
                 self.present(documentCameraViewController, animated: true, completion: nil)
 
             case .notDetermined: // The user has not yet been asked for camera access.
@@ -66,9 +76,10 @@ extension ScannerFlowViewController: ScannerFlowViewDelegate {
     private func requestCameraAcessAndOpen() {
         AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
             guard let self = self,
-                  granted == true else { return }
+                  granted == true,
+                  let documentCameraViewController = self.documentCameraViewController else { return }
 
-            self.present(self.documentCameraViewController, animated: true, completion: nil)
+            self.present(documentCameraViewController, animated: true, completion: nil)
         }
     }
 }
@@ -82,13 +93,7 @@ extension ScannerFlowViewController: VNDocumentCameraViewControllerDelegate {
         for pageIndex in 0 ..< scan.pageCount {
             let image = scan.imageOfPage(at: pageIndex)
             if let cgImage = image.cgImage {
-                let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-                do {
-                    guard let request = viewModel.recognizeTextRequest else { return }
-                    try requestHandler.perform([request])
-                } catch {
-                    fatalError()
-                }
+                perfomRecognizeTextRequest(image: cgImage)
             }
         }
     }

@@ -25,6 +25,10 @@ let package = Package(
         ),
         .testTarget(
             name: "ScannerFlowTests",
-            dependencies: ["ScannerFlow"]),
+            dependencies: ["ScannerFlow"],
+            resources: [
+                .process("Mocks/IDENTIDADE.jpeg")
+            ]
+        )
     ]
 )
