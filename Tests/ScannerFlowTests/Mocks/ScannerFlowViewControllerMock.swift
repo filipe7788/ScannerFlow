@@ -9,7 +9,7 @@ import Foundation
 @testable import ScannerFlow
 
 class ScannerFlowViewControllerMock: ScannerFlowViewModelDelegate {
-    var renderCalledWithName = ""
+    var renderCalledWithName: [String] = []
 
     func render(_ dataSource: ScannerFlow.DataSource.UserInfo) {
         renderCalledWithName = dataSource.recognizedName

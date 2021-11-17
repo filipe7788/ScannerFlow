@@ -18,6 +18,6 @@ final class ScannerFlowViewModelTests: XCTestCase {
         let image = UIImage(contentsOfFile: imagePath)!.cgImage!
         viewModel.performRequest(from: image)
 
-        XCTAssertEqual(viewController.renderCalledWithName, ScannerFlow.DataSource.mock().recognizedName)
+        XCTAssertEqual(viewController.renderCalledWithName, ScannerFlow.DataSource.mock().recognizedText)
     }
 }

@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import UIKit
 
 extension ScannerFlow {
     enum DataSource {
         struct UserInfo {
-            let recognizedName: String
+            let recognizedText: [String]
         }
     }
 }

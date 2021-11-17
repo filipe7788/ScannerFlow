@@ -11,17 +11,22 @@ import AVFoundation
 import Vision
 import VisionKit
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 final class ScannerFlowViewController: UIViewController {
 
     private let customView: ScannerFlowViewProtocol
     private let viewModel: ScannerFlowViewModelProtocol
+    private let delegate: ScannerFlowDelegate
     private var documentCameraViewController: VNDocumentCameraViewController?
 
-    init(customView: ScannerFlowViewProtocol, viewModel: ScannerFlowViewModelProtocol) {
+    init(
+        customView: ScannerFlowViewProtocol,
+        viewModel: ScannerFlowViewModelProtocol,
+        delegate: ScannerFlowDelegate
+    ) {
         self.customView = customView
         self.viewModel = viewModel
-
+        self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -38,38 +43,24 @@ final class ScannerFlowViewController: UIViewController {
         self.documentCameraViewController = VNDocumentCameraViewController()
         documentCameraViewController?.delegate = self
     }
-
-    func perfomRecognizeTextRequest(image: CGImage) {
-        viewModel.performRequest(from: image)
-    }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 extension ScannerFlowViewController: ScannerFlowViewModelDelegate {
     func render(_ dataSource: ScannerFlow.DataSource.UserInfo) {
-        customView.render(dataSource)
+        delegate.handleReconizedText(from: dataSource.recognizedText)
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 extension ScannerFlowViewController: ScannerFlowViewDelegate {
     func openCamera() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
             case .authorized: // The user has previously granted access to the camera.
                 guard let documentCameraViewController = self.documentCameraViewController else { return }
                 self.present(documentCameraViewController, animated: true, completion: nil)
-
-            case .notDetermined: // The user has not yet been asked for camera access.
-                requestCameraAcessAndOpen()
-
-            case .denied: // The user has previously denied access.
-                requestCameraAcessAndOpen()
-
-            case .restricted: // The user can't grant access due to restrictions.
-                requestCameraAcessAndOpen()
-
             @unknown default:
-                fatalError()
+                requestCameraAcessAndOpen()
         }
     }
 
@@ -85,7 +76,7 @@ extension ScannerFlowViewController: ScannerFlowViewDelegate {
 }
 
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 extension ScannerFlowViewController: VNDocumentCameraViewControllerDelegate {
     func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
         dismiss(animated: true, completion: nil)
@@ -93,7 +84,7 @@ extension ScannerFlowViewController: VNDocumentCameraViewControllerDelegate {
         for pageIndex in 0 ..< scan.pageCount {
             let image = scan.imageOfPage(at: pageIndex)
             if let cgImage = image.cgImage {
-                perfomRecognizeTextRequest(image: cgImage)
+                viewModel.performRequest(from: cgImage)
             }
         }
     }
