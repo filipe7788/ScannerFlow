@@ -10,6 +10,5 @@ import ScannerFlow
 
 struct ScannerFlowDelegateMock: ScannerFlowDelegate {
     func handleReconizedText(from text: [String]) {
-
     }
 }

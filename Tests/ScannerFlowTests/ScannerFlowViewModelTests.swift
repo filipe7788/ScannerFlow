@@ -10,10 +10,10 @@ final class ScannerFlowViewModelTests: XCTestCase {
     override func setUp() {
         viewModel = ScannerFlowViewModel()
         viewController = ScannerFlowViewControllerMock()
+        viewModel.setup(viewController)
     }
 
     func testScannerFlowViewModel_givenIDImageWithIdealProperties_shouldRenderImageName() throws {
-        viewModel.setup(viewController)
         let imagePath = Bundle.module.url(forResource: "IDENTIDADE", withExtension: "jpeg")!.path
         let image = UIImage(contentsOfFile: imagePath)!.cgImage!
         viewModel.performRequest(from: image)
