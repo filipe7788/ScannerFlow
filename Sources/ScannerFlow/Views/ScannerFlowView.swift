@@ -51,9 +51,9 @@ final class ScannerFlowView: UIView {
         takePictureButton.translatesAutoresizingMaskIntoConstraints = false
 
         takePictureButton.translatesAutoresizingMaskIntoConstraints = false
-        takePictureButton.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -260).isActive = true
-        takePictureButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24).isActive = true
-        takePictureButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 24).isActive = true
+        takePictureButton.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        takePictureButton.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        takePictureButton.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
 
         takePictureButton.addTarget(self, action: #selector(openCamera), for: .touchUpInside)
     }

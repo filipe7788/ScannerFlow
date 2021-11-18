@@ -1,7 +1,7 @@
 import XCTest
 @testable import ScannerFlow
 
-@available(iOS 15.0, *)
+@available(iOS 13.0, *)
 final class ScannerFlowViewModelTests: XCTestCase {
 
     var viewModel: ScannerFlowViewModelProtocol!

@@ -10,6 +10,6 @@ import Foundation
 
 extension ScannerFlow.DataSource {
     static func mock() -> ScannerFlow.DataSource.UserInfo {
-        return .init(recognizedName: "JOSE DA SILVA E ADELAIDE SOUSA")
+        return .init(recognizedText: [])
     }
 }
